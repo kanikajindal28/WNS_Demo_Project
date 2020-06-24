@@ -78,8 +78,7 @@
                 datas = 0;
             }
 
-            @* <td><input style="width:60px" disabled /></td> *@
-
+            
             <td>
                 <p id="myp"> </p>
             </td>
@@ -106,17 +105,14 @@
         $table1.find('tbody tr').each(function () {
             var sum = 0;
             jQuery(this).find('input').each(function () {
-                if( !isNaN(this.value))
-                sum = sum + parseFloat(this.value);
+                if (!isNaN(this.value))
+                    sum = sum + parseFloat(this.value);
 
             });
-            // $table1.find('p').value = sum;
 
             $("#myp", this).html(sum);
         });
 
-
-        //column total
 
         var result = [];
 
@@ -124,7 +120,6 @@
         $table1.find('tbody tr').each(function (index, ele) {
 
             var rowInputs = ele.querySelectorAll('input');
-//console.log(rowInputs);
             var row = [];
             rowInputs.forEach((cell) => {
                 row.push(cell.value);
@@ -133,17 +128,12 @@
             result.push(row);
         });
         let r = [];
-      //  console.log(result);
         result.forEach(row => {
             var s = 0;
             
-            row.forEach((cell, index) => {
-             //   console.log("index"+index);
-             //   console.log("cell value = "+cell);
-             
+            row.forEach((cell, index) => {             
                 if (!r[index]) {
                 r[index] = parseFloat(cell);
-               //     console.log("r index ="+ r[index]);
                 }
                 else if (!isNaN(cell)) r[index] += parseFloat(cell);
             })
@@ -180,13 +170,11 @@
                     row.push(obj);
                 }
             });
-           // console.log(row);
             result.push(row);
             
         });
         console.log(result);
         var data = JSON.stringify(result);
-        //    console.log(data);
       $.ajax({
           type: 'POST',
           url: '/PatientDatas/Save',
@@ -200,9 +188,7 @@
           error: function (err) {
               console.log(data);
     }
-});
-
-
-        
+    });
+     
     }
 </script>
