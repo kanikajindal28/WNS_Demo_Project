@@ -1,0 +1,208 @@
+﻿@model IEnumerable<WNS_DEMOPROJECT.Models.PatientData>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.assumptions)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.data)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.year)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.assumptions)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.data)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.year)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<button type="submit" id="btn1" class="btn btn-primary" onclick="getRowTotal()">STotal</button>
+<button type="submit" id="btn2" class="btn btn-primary"  onclick="submitdata()">Submit Data</button>
+<table id="tabler" class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">Assumption</th>
+            @for (var i = 2016; i < 2025; i++)
+            {
+                <th scope="col">@i</th>
+            }
+            <th scope="col">Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var record in Model)
+        {
+        <tr>
+            @{ 
+                var assump = record.assumptions;
+                var year = record.year;
+                decimal datas=0;
+                }
+            <th scope="row"> @assump</th>
+            @for (var i = 2016; i < 2025; i++)
+            {
+                if (i == year)
+                    datas = record.data;
+          
+                <td><input class="myclass" year="@i" assumps="@assump" value="@datas" style="width:60px" /></td>
+                datas = 0;
+            }
+
+            @* <td><input style="width:60px" disabled /></td> *@
+
+            <td>
+                <p id="myp"> </p>
+            </td>
+        </tr>
+            
+        }
+        <tr id="mytr">
+            <td> Total</td>
+        </tr>
+
+    </tbody>
+
+</table>
+<script>
+    jQuery('document').ready(function () {
+        getRowTotal();
+
+
+
+    });
+
+    function getRowTotal() {
+        $table1 = jQuery('#tabler')
+        $table1.find('tbody tr').each(function () {
+            var sum = 0;
+            jQuery(this).find('input').each(function () {
+                if( !isNaN(this.value))
+                sum = sum + parseFloat(this.value);
+
+            });
+            // $table1.find('p').value = sum;
+
+            $("#myp", this).html(sum);
+        });
+
+
+        //column total
+
+        var result = [];
+
+        $table1 = jQuery('#tabler');
+        $table1.find('tbody tr').each(function (index, ele) {
+
+            var rowInputs = ele.querySelectorAll('input');
+//console.log(rowInputs);
+            var row = [];
+            rowInputs.forEach((cell) => {
+                row.push(cell.value);
+            });
+
+            result.push(row);
+        });
+        let r = [];
+      //  console.log(result);
+        result.forEach(row => {
+            var s = 0;
+            
+            row.forEach((cell, index) => {
+             //   console.log("index"+index);
+             //   console.log("cell value = "+cell);
+             
+                if (!r[index]) {
+                r[index] = parseFloat(cell);
+               //     console.log("r index ="+ r[index]);
+                }
+                else if (!isNaN(cell)) r[index] += parseFloat(cell);
+            })
+        })
+        var mytr = document.querySelector('#mytr');
+        mytr.innerHTML = '<td>Total</td>';
+        r.forEach((value) => {
+            mytr.innerHTML += `<td>${value}</td>`;
+        })
+
+    }
+
+    function submitdata() {      
+        var result = [];
+
+        $table1 = jQuery('#tabler')
+        $table1.find('tbody tr').each(function (index, ele) {
+            var rowInputs = ele.querySelectorAll('input');
+            var row = [];
+            
+            rowInputs.forEach((cell) => {
+                if (cell.hasAttributes()) {
+                    var attrs = cell.attributes;
+                    let i = 1;
+                    var dataa = cell.value;
+                    var yearr = attrs[i].value;
+                    i++;
+                    var assumptionss = attrs[i].value;
+                    var obj = {
+                        data: dataa,
+                        year: yearr,
+                        assumptions: assumptionss
+                    };
+                    row.push(obj);
+                }
+            });
+           // console.log(row);
+            result.push(row);
+            
+        });
+        console.log(result);
+        var data = JSON.stringify(result);
+        //    console.log(data);
+      $.ajax({
+          type: 'POST',
+          url: '/PatientDatas/Save',
+          data: JSON.stringify(result),
+           traditional: true,
+          contentType: 'application/json',
+          dataType: "json",
+          success: function (response, data) {
+           alert(response.someValue);
+           },
+          error: function (err) {
+              console.log(data);
+    }
+});
+
+
+        
+    }
+</script>
